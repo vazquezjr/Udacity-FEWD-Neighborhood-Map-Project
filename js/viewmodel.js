@@ -2,7 +2,7 @@
 // A class that holds the information for each marker on the map.
 var MapLocation = function(newName, newLat, newLng, newInfo) {
 
-	// Save a reference to this so that we can easily refer back to the class variables.
+	// Save a reference to this.
 	var self = this;
 
 	// The name of the location.
@@ -59,18 +59,23 @@ MapLocation.prototype.getMarker = function() {
 	return this.marker;
 };
 
+// A view model that will be used to bind the DOM elements in index.html to the data in viewmodel.js.
 function listViewModel() {
 
+	// Save a reference to this.
 	var self = this;
 
+	// An observable and an observable array to provide a link between the view and the model.
 	self.query = ko.observable('University of Central Florida');
 	self.location = ko.observableArray([]);
-	self.categories = ko.obervableArray([]);
 
+	// A template URL used to create Ajax requests for given search queries.
 	self.foursquareURL = 'https://api.foursquare.com/v2/venues/search?client_id=SQZ03UD0J4VY5JX4OQDTOAHKJS5L3B4IF2UMOKWCPL0XDYKR&client_secret=L3FVORF4LAN2PJOAYLKDMWOEFEXTRU3L52DYA4PCFOIWOORZ&v=20130815&near=Orlando,FL';
 	
+	// An <ul> element that is only used to display errors to the user.
 	self.$list = $('#locations');
 
+	// A function to control the Slide-Menu.
 	self.toggleMenu = function() {
 
 		$('body').toggleClass('list-hidden');
@@ -79,29 +84,34 @@ function listViewModel() {
 
 	};
 
+	// A function to filter the list based on the string from the input box.
 	self.filterList = function() {
+
+		// Remove all markers or errors from the map.
 		self.removeMarkers();
 		self.$list.empty();
 
+		// Construct the url for the ajax request.
 		self.foursquareURL = self.foursquareURL + '&query=' + self.query();
 
-		var results;
-
+		// Set a timeout limit for the request.
 		var foursquareRequestTimeout = setTimeout(function() {
 			self.$list.append('<li>Could not load locations</li>')
 		}, 8000);
 
+		// Make an ajax call to retrieve the JSON object containing a list of locations.
 		$.ajax(self.foursquareURL, function(data) {
 			dataType: 'json'
 		}).done(function(data) {
 
+			// Local variables to use for the data retrieval.
 			var venues = data.response.venues;
 			var venueInfo;
 
-			console.log(venues);
-
+			// For each location,
 			for (var i = 0; i < venues.length; i++) {
 
+				// Obtain all relevent information for the location and store it as HTML code.
 				venueInfo =	'<div class="window">' +
 								'<h2>' +
 									(venues[i].name === undefined ? '' : venues[i].name) +
@@ -122,20 +132,25 @@ function listViewModel() {
 								'</div>' +
 							'</div>';
 
+				// Push a new MapLocation object into the observable array with the necessary information to create a Marker and InfoWindow for the location.
 				self.location.push(new MapLocation(venues[i].name, venues[i].location.lat, venues[i].location.lng, venueInfo));
 			}
 
+			// Center the map around the markers.
 			self.autoCenter();
 
+			// Clear the timeout for the request.
 			clearTimeout(foursquareRequestTimeout);
 		});
 
+		// Prepare the url string for the next function call.
 		self.foursquareURL = 'https://api.foursquare.com/v2/venues/search?client_id=SQZ03UD0J4VY5JX4OQDTOAHKJS5L3B4IF2UMOKWCPL0XDYKR&client_secret=L3FVORF4LAN2PJOAYLKDMWOEFEXTRU3L52DYA4PCFOIWOORZ&v=20130815&near=Orlando,FL';
 
 		return false;
 
 	};
 
+	// A function to center the map around a given set of markers.
 	self.autoCenter = function() {
 	    var limits = new google.maps.LatLngBounds();
 	    
@@ -148,6 +163,7 @@ function listViewModel() {
 	    return false;
 	};
 
+	// A function that removes all markers from the map.
 	self.removeMarkers = function() {
 
 		for (var i = 0; i < self.location().length; i++) {
@@ -160,6 +176,7 @@ function listViewModel() {
 
 	};
 
+	// A function to open or close an InfoWindow for a location whenever a name is clicked from the list.
 	self.openInfoWindow = function(location) {
 
 		if (location.marker.getAnimation() !== null) {
@@ -182,8 +199,9 @@ function listViewModel() {
 
 }
 
+// Create the view model for the application and apply the bindings.
 var viewModel = new listViewModel();
-
 ko.applyBindings(viewModel);
 
+// Load the default locations for the application.
 viewModel.filterList();
