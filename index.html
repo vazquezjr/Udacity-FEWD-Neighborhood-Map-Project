@@ -13,7 +13,7 @@
 
 		<header>
 			<a href="#" class="menu-icon-link" data-bind="click: toggleMenu">
-	            <span class=fontawesome-reorder>p</span>
+	            <span class=fontawesome-reorder></span>
 	        </a>
 		</header>
 
@@ -25,7 +25,10 @@
 					<input id="location-box" type="text" placeholder="Type in a location here." data-bind="textInput: query">
 					<button type="button" data-bind="click: filterList">Filter</button>
 				</div>
-				<ul id="locations"></ul>
+				<p><em>Powered by FourSquare</em></p>
+				<ul id="locations" data-bind="foreach: location">
+					<li data-bind="text: name, click: $root.openInfoWindow"></li>
+				</ul>
 			</aside>
 
 			<div id="map"></div>
@@ -41,18 +44,6 @@
 
 					map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-					/*var tribeca = {lat: 40.719526, lng: -74.0089934};
-					var marker = new google.maps.Marker({
-						position: tribeca,
-						map: map,
-						title: 'First Marker!'
-					});
-					var infoWindow = new google.maps.InfoWindow({
-							content: 'Do you ever feel like an InfoWindow, floating through the wind,' + ' ready to start again?'
-					});
-					marker.addListener('click', function() {
-						infoWindow.open(map, marker);
-					});*/
 				}
 			</script>
 
