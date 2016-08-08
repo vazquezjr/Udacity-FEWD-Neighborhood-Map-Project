@@ -21,7 +21,10 @@
 
 			<aside class="slide-list">
 				<h1>Locations</h1>
-				<input id="location-box" type="text" placeholder="Type in a location here.">
+				<div class="filter-box">
+					<input id="location-box" type="text" placeholder="Type in a location here." data-bind="textInput: query">
+					<button type="button" data-bind="click: filterList">Filter</button>
+				</div>
 				<ul id="locations"></ul>
 			</aside>
 
@@ -29,13 +32,16 @@
 
 			<script>
 				var map;
-				function initMap() {
-					map = new google.maps.Map(document.getElementById('map'), {
-						center: {lat: 40.7413549, lng: -73.9980244},
-						zoom: 13
-					});
 
-					var tribeca = {lat: 40.719526, lng: -74.0089934};
+				function initMap() {
+					var mapOptions = {
+						zoom: 13,
+						center: {lat: 28.5383355, lng: -81.3792365}
+					};
+
+					map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+					/*var tribeca = {lat: 40.719526, lng: -74.0089934};
 					var marker = new google.maps.Marker({
 						position: tribeca,
 						map: map,
@@ -46,7 +52,7 @@
 					});
 					marker.addListener('click', function() {
 						infoWindow.open(map, marker);
-					});
+					});*/
 				}
 			</script>
 
