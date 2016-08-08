@@ -50,12 +50,21 @@ main {
 }
 
 input {
-    width: 100%;
+    width: 75%;
+}
+
+button {
+    width: 25%;
 }
 
 h1 {
     margin-top: 0;
     margin-bottom: 1em;
+}
+
+div.filter-box {
+    width: 100%;
+    display: flex;
 }
 
 #map {
