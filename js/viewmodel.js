@@ -1,15 +1,21 @@
 
+// A class that holds the information for each marker on the map.
 var MapLocation = function(newName, newLat, newLng, newInfo) {
 
+	// Save a reference to this so that we can easily refer back to the class variables.
 	var self = this;
 
-	this.name = /*ko.observable(*/newName/*);*/
+	// The name of the location.
+	this.name = newName
 
+	// Latitude and Longitude coordinates of the location for the Google Maps API.
 	this.lat = newLat;
 	this.lng = newLng;
 
+	// A boolean that indicates whether the InfoWindow for this location is visible or not.
 	this.isOpen = false;
 
+	// A Marker object that places a marker onto the map.
 	this.marker = new google.maps.Marker({
 
 		position: {lat: this.lat, lng: this.lng},
@@ -17,14 +23,18 @@ var MapLocation = function(newName, newLat, newLng, newInfo) {
 
 	});
 
+	// Turn off any animation for this marker.
 	this.marker.setAnimation(null);
 
+	// An InfoWindow object that stores the information for the location.
 	this.infoWindow = new google.maps.InfoWindow({
 
 		content: newInfo
 
 	});
 
+	// Register a click event for the marker that opens the InfoWindow and starts the animation or 
+	// 		closes the InfoWindow and stops the animation, depending on the current state.
 	this.marker.addListener('click', function() {
 
 		if (self.marker.getAnimation() !== null) {
@@ -44,6 +54,7 @@ var MapLocation = function(newName, newLat, newLng, newInfo) {
 
 };
 
+// A method for the MapLocation class that retrieves the marker for a given MapLocation object.
 MapLocation.prototype.getMarker = function() {
 	return this.marker;
 };
