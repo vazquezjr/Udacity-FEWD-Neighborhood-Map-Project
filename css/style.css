@@ -5,6 +5,10 @@
   font-family: 'FontAwesome', sans-serif;
 }
 
+#error {
+    color: white;
+}
+
 body {
     margin: 0;
     background-color: black
@@ -72,6 +76,7 @@ ul {
     text-align: center;
     list-style: none;
     overflow: auto;
+    max-height: calc(100vh - 100px);
 }
 
 li {
