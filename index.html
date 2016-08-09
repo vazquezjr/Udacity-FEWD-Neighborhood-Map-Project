@@ -4,8 +4,20 @@
 	<head>
 		<title>Neighborhood Map Project</title>
 
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
 		<link rel="stylesheet" href="css/style.css">
 		<script src="lib/jQuery/jquery-3.1.0.min.js"></script>
+
+		<script>
+			function googleError() {
+
+				$('#map').append('<h1 id="error">Could not load Google Maps</h1>');
+
+				return;
+			}
+
+		</script>
 
 	</head>
 
@@ -22,11 +34,11 @@
 			<aside class="slide-list">
 				<h1>Locations</h1>
 				<div class="filter-box">
-					<input id="location-box" type="text" placeholder="Type in a location here." data-bind="textInput: query">
-					<button type="button" data-bind="click: filterList">Filter</button>
+					<input id="location-box" type="text" placeholder="Type in a location here." data-bind="value: query, valueUpdate: 'afterkeydown'">
+					<button type="button" data-bind="click: search">Search</button>
 				</div>
 				<p><em>Powered by FourSquare</em></p>
-				<ul id="locations" data-bind="foreach: location">
+				<ul id="locations" data-bind="foreach: filteredLocations">
 					<li data-bind="text: name, click: $root.openInfoWindow"></li>
 				</ul>
 			</aside>
@@ -35,6 +47,7 @@
 
 			<script>
 				var map;
+				var infoWindow;
 
 				function initMap() {
 					var mapOptions = {
@@ -43,19 +56,24 @@
 					};
 
 					map = new google.maps.Map(document.getElementById('map'), mapOptions);
+					infoWindow = new google.maps.InfoWindow({
+
+						content: ''
+
+					});
 
 				}
 			</script>
 
 			<script async defer
-				src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAb75MQSWP99D4f6XxiMDRuuMPuxo18H6A&v=3&callback=initMap">
+				src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAb75MQSWP99D4f6XxiMDRuuMPuxo18H6A&v=3&callback=initMap" onerror="googleError()">
 			</script>
 
 		</main>
 
-	</body>
+		<script src="lib/knockout/knockout-3.4.0.js"></script>
+		<script src="js/viewmodel.js"></script>
 
-	<script src="lib/knockout/knockout-3.4.0.js"></script>
-	<script src="js/viewmodel.js"></script>
+	</body>
 	
 </html>
