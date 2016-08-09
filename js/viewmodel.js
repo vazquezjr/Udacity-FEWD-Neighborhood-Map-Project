@@ -26,30 +26,14 @@ var MapLocation = function(newName, newLat, newLng, newInfo) {
 	// Turn off any animation for this marker.
 	this.marker.setAnimation(null);
 
-	// An InfoWindow object that stores the information for the location.
-	this.infoWindow = new google.maps.InfoWindow({
-
-		content: newInfo
-
-	});
+	// The information for this location.
+	this.content = newInfo;
 
 	// Register a click event for the marker that opens the InfoWindow and starts the animation or 
 	// 		closes the InfoWindow and stops the animation, depending on the current state.
 	this.marker.addListener('click', function() {
 
-		if (self.marker.getAnimation() !== null) {
-          self.marker.setAnimation(null);
-        } else {
-          self.marker.setAnimation(google.maps.Animation.BOUNCE);
-        }
-
-		if (self.isOpen === true) {
-			self.infoWindow.close();
-			self.isOpen = false;
-		} else {
-			self.infoWindow.open(map, self.marker);
-			self.isOpen = true;
-		}
+        viewModel.openInfoWindow(self);
 	})
 
 };
@@ -85,11 +69,10 @@ function listViewModel() {
 	};
 
 	// A function to filter the list based on the string from the input box.
-	self.filterList = function() {
+	self.search = function() {
 
-		// Remove all markers or errors from the map.
+		// Remove all markers from the map.
 		self.removeMarkers();
-		self.$list.empty();
 
 		// Construct the url for the ajax request.
 		self.foursquareURL = self.foursquareURL + '&query=' + self.query();
@@ -107,15 +90,18 @@ function listViewModel() {
 			// Local variables to use for the data retrieval.
 			var venues = data.response.venues;
 			var venueInfo;
+			console.log(venues);
 
 			// For each location,
 			for (var i = 0; i < venues.length; i++) {
 
 				// Obtain all relevent information for the location and store it as HTML code.
 				venueInfo =	'<div class="window">' +
-								'<h2>' +
-									(venues[i].name === undefined ? '' : venues[i].name) +
-								'</h2>' +
+								'<a href="http://foursquare.com/v/' + venues[i].id + '">' +
+									'<h2>' +
+										(venues[i].name === undefined ? '' : venues[i].name) +
+									'</h2>' +
+								'</a>' +
 								'<div class="window-info">' +
 									'<p>' +
 										(venues[i].location.address === undefined ? '' : (venues[i].location.address + ', ')) + 
@@ -145,6 +131,9 @@ function listViewModel() {
 
 		// Prepare the url string for the next function call.
 		self.foursquareURL = 'https://api.foursquare.com/v2/venues/search?client_id=SQZ03UD0J4VY5JX4OQDTOAHKJS5L3B4IF2UMOKWCPL0XDYKR&client_secret=L3FVORF4LAN2PJOAYLKDMWOEFEXTRU3L52DYA4PCFOIWOORZ&v=20130815&near=Orlando,FL';
+
+		// Prepare for the next search.
+		self.query('');
 
 		return false;
 
@@ -179,22 +168,57 @@ function listViewModel() {
 	// A function to open or close an InfoWindow for a location whenever a name is clicked from the list.
 	self.openInfoWindow = function(location) {
 
-		if (location.marker.getAnimation() !== null) {
-          location.marker.setAnimation(null);
-        } else {
-          location.marker.setAnimation(google.maps.Animation.BOUNCE);
-        }
+        location.marker.setAnimation(google.maps.Animation.BOUNCE);
+
+        setTimeout(function() {
+        	location.marker.setAnimation(null)
+        }, 700);
 
 		if (location.isOpen === true) {
-			location.infoWindow.close();
+			infoWindow.close();
 			location.isOpen = false;
-			return false;
+			$('body').addClass('list-hidden');
+			return true;;
 		} else {
-			location.infoWindow.open(map, location.marker);
+			infoWindow.setContent(location.content);
+			infoWindow.open(map, location.marker);
 			location.isOpen = true;
+			$('body').addClass('list-hidden');
 			return false;
 		}
 
+	};
+	
+	// A function to filter the locations based on the text in the filter bar.
+	self.filteredLocations = ko.computed(function() {
+		var filter = self.query().toLowerCase();
+
+		if (filter === '') {
+			for (var i = 0; i < self.location().length; i++) {
+				self.location()[i].marker.setVisible(true);
+			}
+
+			return self.location();
+		} else {
+			 return ko.utils.arrayFilter(self.location(), function(location) {
+				var doesStart = self.stringStartsWith(location.name.toLowerCase(), filter);
+				if (doesStart)
+					location.marker.setVisible(true);
+				else
+					location.marker.setVisible(false);
+
+				return doesStart;
+			});
+		}
+		
+	});
+
+	// A helper function to find out if the passed in string starts with some other string.
+	self.stringStartsWith = function (string, startsWith) {          
+	    string = string || "";
+	    if (startsWith.length > string.length)
+	        return false;
+	    return string.substring(0, startsWith.length) === startsWith;
 	};
 
 }
@@ -204,4 +228,4 @@ var viewModel = new listViewModel();
 ko.applyBindings(viewModel);
 
 // Load the default locations for the application.
-viewModel.filterList();
+viewModel.search();
